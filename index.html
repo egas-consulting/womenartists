@@ -1,0 +1,3517 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Women Artists Visualization</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #F3F0E8;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    /* Style for the occupation filter dropdown */
+    #occupationFilter {
+      display: block;
+      margin: 0 auto 20px auto;
+      padding: 8px 12px;
+      font-size: 1em;
+      font-family: 'Roboto', sans-serif;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    @font-face {
+      font-family: 'Roboto';
+      font-style: italic;
+      font-weight: 300;
+      src: url('fonts/Roboto-LightItalic.woff2') format('woff2'),
+           url('fonts/Roboto-LightItalic.woff') format('woff');
+    }
+    .artist-container {
+      margin: 10px;
+      display: inline-block;
+      vertical-align: top;
+    }
+    .artist-wrapper {
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 auto;
+      position: relative;
+      cursor: pointer;
+    }
+    svg {
+      display: block;
+      margin: 0 auto;
+    }
+    .artist-tooltip {
+      display: none;
+      position: absolute;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      z-index: 10;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 300;
+      font-style: italic;
+      font-size: 0.9em;
+      pointer-events: none;
+    }
+    .artist-wrapper:hover .artist-tooltip {
+      display: block;
+    }
+    .artist-name {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.671);
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 1.3em;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 400;
+      font-style: italic;
+      pointer-events: none;
+    }
+    .body-container {
+      position: relative;
+      width: 350px;
+      margin: 0;
+      background: transparent;
+    }
+    .body-img {
+      display: block;
+      width: 400px;
+      height: auto;
+    }
+    .overlay-svg {
+      position: absolute;
+      top: 0;
+      left: 75px;
+      pointer-events: none;
+      background: transparent;
+    }
+
+    .main-title {
+    font-family: 'Roboto', sans-serif;
+    font-size: 3em;
+    font-weight: 700; /* Bold */
+    text-align: center;
+    margin-bottom: 10px;
+    }
+
+    .subtitle {
+    display: block;
+    font-weight: 300; /* Bold */
+    font-size: 0.6em; /* Adjusts subtitle size relative to the main title */
+    margin-top: 5px;
+    }
+
+    .intro {
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300; /* Light text for intro if desired */
+    }
+
+    .intro p {
+    max-width: 600px;
+    margin: 0 auto 10px auto;
+    font-size: 1em;
+    }
+
+   /* Default styling for mobile devices */
+    .legend-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    }
+
+    /* Media query for desktop devices */
+    @media only screen and (min-width: 1024px) {
+    .legend-image {
+        max-width: 50%;
+    }
+    }
+  </style>
+</head>
+<body>
+    <h1 class="main-title">
+        Her Vision:
+        <span class="subtitle">Mapping the Landscape of Over 300 Contemporary Women Artists</span>
+      </h1>
+
+      <div class="intro">
+        <p>In the 20th century, women artists made significant contributions across various disciplines. Drawing from the list of contemporary women artists on <a href="http://www.artcyclopedia.com/artists/women-artists-20thb.html">Artcyclopedia</a>, I have mapped down <b>346 contemporary women artists</b>, highlighting their primary disciplines, ages, generational cohorts, and continents of birth.
+
+            This mapping underscores the diverse talents and global presence of women in the art world.</p>
+        <img src="legend.png" alt="Legend" class="legend-image">
+      </div>
+  <!-- Updated Occupation Filter Dropdown -->
+  <select id="occupationFilter">
+    <option value="All">All Occupations</option>
+    <option value="Painting, drawing, illustration & prints">Painting, drawing, illustration & prints</option>
+    <option value="Multidisciplinary artists">Multidisciplinary artists</option>
+    <option value="Sculpture, Ceramics & Architecture">Sculpture, Ceramics & Architecture</option>
+    <option value="Photography">Photography</option>
+    <option value="video, performance & multimedia">video, performance & multimedia</option>
+    <option value="Digital">Digital</option>
+  </select>
+  
+  <div id="container"></div>
+
+  <script>
+    // FINAL DATASET in JSON format
+    const artists = [
+  {
+    "name": "Sandra Blow",
+    "birthYear": 1925,
+    "nationality": "British",
+    "generation": "Greatest Generation",
+    "age": 100,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Beryl Cook",
+    "birthYear": 1926,
+    "nationality": "British",
+    "generation": "Greatest Generation",
+    "age": 99,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Ellen Lanyon",
+    "birthYear": 1926,
+    "nationality": "American",
+    "generation": "Greatest Generation",
+    "age": 99,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Joan Mitchell",
+    "birthYear": 1926,
+    "nationality": "American",
+    "generation": "Greatest Generation",
+    "age": 99,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Betye Saar",
+    "birthYear": 1926,
+    "nationality": "African-American",
+    "generation": "Greatest Generation",
+    "age": 99,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Nancy Spero",
+    "birthYear": 1926,
+    "nationality": "American",
+    "generation": "Greatest Generation",
+    "age": 99,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Beth Van Hoesen",
+    "birthYear": 1926,
+    "nationality": "American",
+    "generation": "Greatest Generation",
+    "age": 99,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Kenojuak Ashevak",
+    "birthYear": 1927,
+    "nationality": "Canadian",
+    "generation": "Greatest Generation",
+    "age": 98,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Gracia Barrios",
+    "birthYear": 1927,
+    "nationality": "Chilean",
+    "generation": "Greatest Generation",
+    "age": 98,
+    "continent": "South America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Sarah Garner",
+    "birthYear": 1927,
+    "nationality": "American",
+    "generation": "Greatest Generation",
+    "age": 98,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Dorothy Elsie Knowles",
+    "birthYear": 1927,
+    "nationality": "Canadian",
+    "generation": "Greatest Generation",
+    "age": 98,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Kathleen Knowling",
+    "birthYear": 1927,
+    "nationality": "Canadian",
+    "generation": "Greatest Generation",
+    "age": 98,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Lin Emery",
+    "birthYear": 1928,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 97,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Gathie Falk",
+    "birthYear": 1928,
+    "nationality": "Canadian",
+    "generation": "Silent Generation",
+    "age": 97,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Helen Frankenthaler",
+    "birthYear": 1928,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 97,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Rita Letendre",
+    "birthYear": 1928,
+    "nationality": "Canadian",
+    "generation": "Silent Generation",
+    "age": 97,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Ida Applebroog",
+    "birthYear": 1929,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 96,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Jo Baer",
+    "birthYear": 1929,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 96,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Jay DeFeo",
+    "birthYear": 1929,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 96,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Yayoi Kusama",
+    "birthYear": 1929,
+    "nationality": "Japanese",
+    "generation": "Silent Generation",
+    "age": 96,
+    "continent": "Asia",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Lygia Pape",
+    "birthYear": 1929,
+    "nationality": "Brazilian",
+    "generation": "Silent Generation",
+    "age": 96,
+    "continent": "South America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Magdalena Abakanowicz",
+    "birthYear": 1930,
+    "nationality": "Polish",
+    "generation": "Silent Generation",
+    "age": 95,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Gillian Ayres",
+    "birthYear": 1930,
+    "nationality": "British",
+    "generation": "Silent Generation",
+    "age": 95,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Carol Hoorn Fraser",
+    "birthYear": 1930,
+    "nationality": "American/Canadian",
+    "generation": "Silent Generation",
+    "age": 95,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Dame Elisabeth Frink",
+    "birthYear": 1930,
+    "nationality": "British",
+    "generation": "Silent Generation",
+    "age": 95,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Margot Lovejoy",
+    "birthYear": 1930,
+    "nationality": "Canadian/American",
+    "generation": "Silent Generation",
+    "age": 95,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Marisol",
+    "birthYear": 1930,
+    "nationality": "Venezuelan",
+    "generation": "Silent Generation",
+    "age": 95,
+    "continent": "South America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Faith Ringgold",
+    "birthYear": 1930,
+    "nationality": "African-American",
+    "generation": "Silent Generation",
+    "age": 95,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Niki de Saint-Phalle",
+    "birthYear": 1930,
+    "nationality": "French",
+    "generation": "Silent Generation",
+    "age": 95,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Elizabeth Blackadder",
+    "birthYear": 1931,
+    "nationality": "British",
+    "generation": "Silent Generation",
+    "age": 94,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Lee Bontecou",
+    "birthYear": 1931,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 94,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Agnes Denes",
+    "birthYear": 1931,
+    "nationality": "Hungarian",
+    "generation": "Silent Generation",
+    "age": 94,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Audrey Flack",
+    "birthYear": 1931,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 94,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Marcia Gygli King",
+    "birthYear": 1931,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 94,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Marisa Merz",
+    "birthYear": 1931,
+    "nationality": "Italian",
+    "generation": "Silent Generation",
+    "age": 94,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Bridget Riley",
+    "birthYear": 1931,
+    "nationality": "British",
+    "generation": "Silent Generation",
+    "age": 94,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Joyce Wieland",
+    "birthYear": 1931,
+    "nationality": "Canadian",
+    "generation": "Silent Generation",
+    "age": 94,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Anne Meredith Barry",
+    "birthYear": 1932,
+    "nationality": "Canadian",
+    "generation": "Silent Generation",
+    "age": 93,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Lila Katzen",
+    "birthYear": 1932,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 93,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Dorothea Rockburne",
+    "birthYear": 1932,
+    "nationality": "Canadian",
+    "generation": "Silent Generation",
+    "age": 93,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Idelle Weber",
+    "birthYear": 1932,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 93,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Judith Burton",
+    "birthYear": 1933,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 92,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Chryssa",
+    "birthYear": 1933,
+    "nationality": "Greek",
+    "generation": "Silent Generation",
+    "age": 92,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Mary Frank",
+    "birthYear": 1933,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 92,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Viola Frey",
+    "birthYear": 1933,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 92,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Anna Bella Geiger",
+    "birthYear": 1933,
+    "nationality": "Brazilian",
+    "generation": "Silent Generation",
+    "age": 92,
+    "continent": "South America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Yoko Ono",
+    "birthYear": 1933,
+    "nationality": "Japanese/American",
+    "generation": "Silent Generation",
+    "age": 92,
+    "continent": "Asia",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Hilla Becher",
+    "birthYear": 1934,
+    "nationality": "German",
+    "generation": "Silent Generation",
+    "age": 91,
+    "continent": "Europe",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Sheila Hicks",
+    "birthYear": 1934,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 91,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Yvonne Jacquette",
+    "birthYear": 1934,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 91,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Koo Mei",
+    "birthYear": 1934,
+    "nationality": "Chinese",
+    "generation": "Silent Generation",
+    "age": 91,
+    "continent": "Asia",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Ann Newdigate",
+    "birthYear": 1934,
+    "nationality": "South African/Canadian",
+    "generation": "Silent Generation",
+    "age": 91,
+    "continent": "Africa",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Janet Dawson",
+    "birthYear": 1935,
+    "nationality": "Australian",
+    "generation": "Silent Generation",
+    "age": 90,
+    "continent": "Australia",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Jeanne-Claude",
+    "birthYear": 1935,
+    "nationality": "French",
+    "generation": "Silent Generation",
+    "age": 90,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Marilyn Levine",
+    "birthYear": 1935,
+    "nationality": "Canadian",
+    "generation": "Silent Generation",
+    "age": 90,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Mary Pratt",
+    "birthYear": 1935,
+    "nationality": "Canadian",
+    "generation": "Silent Generation",
+    "age": 90,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Paula Rego",
+    "birthYear": 1935,
+    "nationality": "Portuguese",
+    "generation": "Silent Generation",
+    "age": 90,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Graciela Rodo-Boulanger",
+    "birthYear": 1935,
+    "nationality": "Bolivian",
+    "generation": "Silent Generation",
+    "age": 90,
+    "continent": "South America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Sondra Freckelton",
+    "birthYear": 1936,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 89,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Eva Hesse",
+    "birthYear": 1936,
+    "nationality": "German",
+    "generation": "Silent Generation",
+    "age": 89,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Joan Jonas",
+    "birthYear": 1936,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 89,
+    "continent": "North America",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Fay Jones",
+    "birthYear": 1936,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 89,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Louise Scott",
+    "birthYear": 1936,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 89,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Carolyn Brady",
+    "birthYear": 1937,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 88,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Martha Mayer Erlebacher",
+    "birthYear": 1937,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 88,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Tamami Shima",
+    "birthYear": 1937,
+    "nationality": "Japanese",
+    "generation": "Silent Generation",
+    "age": 88,
+    "continent": "Asia",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Emma Amos",
+    "birthYear": 1938,
+    "nationality": "African-American",
+    "generation": "Silent Generation",
+    "age": 87,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Dotty Attie",
+    "birthYear": 1938,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 87,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Joan Brown",
+    "birthYear": 1938,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 87,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Janet Fish",
+    "birthYear": 1938,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 87,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Nancy Holt",
+    "birthYear": 1938,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 87,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Sylvia Plimack Mangold",
+    "birthYear": 1938,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 87,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Lynn M. Randolph",
+    "birthYear": 1938,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 87,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Michelle Stuart",
+    "birthYear": 1938,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 87,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Judy Chicago",
+    "birthYear": 1939,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 86,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Rita Donagh",
+    "birthYear": 1939,
+    "nationality": "British",
+    "generation": "Silent Generation",
+    "age": 86,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Glenna Goodacre",
+    "birthYear": 1939,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 86,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Judy Onofrio",
+    "birthYear": 1939,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 86,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Carolee Schneemann",
+    "birthYear": 1939,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 86,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Mierle Laderman Ukeles",
+    "birthYear": 1939,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 86,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Virginia Wattles",
+    "birthYear": 1939,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 86,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Nancy Graves",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Valie Export",
+    "birthYear": 1940,
+    "nationality": "Austrian",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Mary Heilmann",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Marion Held",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Susan Hiller",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Mary Ellen Mark",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Elizabeth Murray",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Gladys Nilsson",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Jaune Quick-To-See Smith",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Joan Snyder",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Pat Steir",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Hannah Wilke",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Jennifer Bartlett",
+    "birthYear": 1941,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 84,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Lynda Benglis",
+    "birthYear": 1941,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 84,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Susan Seddon Boulet",
+    "birthYear": 1941,
+    "nationality": "Brazilian/American",
+    "generation": "Silent Generation",
+    "age": 84,
+    "continent": "South America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Hanne Darboven",
+    "birthYear": 1941,
+    "nationality": "German",
+    "generation": "Silent Generation",
+    "age": 84,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Linda McCartney",
+    "birthYear": 1941,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 84,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Jackie Winsor",
+    "birthYear": 1941,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 84,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Sylvia Bendzsa",
+    "birthYear": 1942,
+    "nationality": "Canadian",
+    "generation": "Silent Generation",
+    "age": 83,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Lia Cook",
+    "birthYear": 1942,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 83,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Graciela Iturbide",
+    "birthYear": 1942,
+    "nationality": "Mexican",
+    "generation": "Silent Generation",
+    "age": 83,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Joyce Kozloff",
+    "birthYear": 1942,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 83,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Yolanda Lopez",
+    "birthYear": 1942,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 83,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Susan Puelz",
+    "birthYear": 1942,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 83,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Ursula von Rydingsvard",
+    "birthYear": 1942,
+    "nationality": "German/American",
+    "generation": "Silent Generation",
+    "age": 83,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Coosje van Bruggen",
+    "birthYear": 1942,
+    "nationality": "Dutch/American",
+    "generation": "Silent Generation",
+    "age": 83,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Nancy Reddin Kienholz",
+    "birthYear": 1943,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 82,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Annette Messager",
+    "birthYear": 1943,
+    "nationality": "French",
+    "generation": "Silent Generation",
+    "age": 82,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Maria Nordman",
+    "birthYear": 1943,
+    "nationality": "German",
+    "generation": "Silent Generation",
+    "age": 82,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Ellen Phelan",
+    "birthYear": 1943,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 82,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Howardena Pindell",
+    "birthYear": 1943,
+    "nationality": "African-American",
+    "generation": "Silent Generation",
+    "age": 82,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Edda Renouf",
+    "birthYear": 1943,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 82,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Martha Rosler",
+    "birthYear": 1943,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 82,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Dana Boussard",
+    "birthYear": 1944,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 81,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Ester Hernandez",
+    "birthYear": 1944,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 81,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Candida Hofer",
+    "birthYear": 1944,
+    "nationality": "German",
+    "generation": "Silent Generation",
+    "age": 81,
+    "continent": "Europe",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Rebecca Horn",
+    "birthYear": 1944,
+    "nationality": "German",
+    "generation": "Silent Generation",
+    "age": 81,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Catharine Liles",
+    "birthYear": 1944,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 81,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Mary Lucier",
+    "birthYear": 1944,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 81,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Rowena Morrill",
+    "birthYear": 1944,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 81,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Katharina Sieverding",
+    "birthYear": 1944,
+    "nationality": "Czech",
+    "generation": "Silent Generation",
+    "age": 81,
+    "continent": "Europe",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Meg Webster",
+    "birthYear": 1944,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 81,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Tina Barney",
+    "birthYear": 1945,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 80,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Maggi Hambling",
+    "birthYear": 1945,
+    "nationality": "British",
+    "generation": "Silent Generation",
+    "age": 80,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Mags Harries",
+    "birthYear": 1945,
+    "nationality": "British/American",
+    "generation": "Silent Generation",
+    "age": 80,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Valerie Jaudon",
+    "birthYear": 1945,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 80,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Barbara Kruger",
+    "birthYear": 1945,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 80,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Susan Rothenberg",
+    "birthYear": 1945,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 80,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Carol Sutton",
+    "birthYear": 1945,
+    "nationality": "American/Canadian",
+    "generation": "Silent Generation",
+    "age": 80,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Jan Woods",
+    "birthYear": 1945,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 80,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Marina Abramovic",
+    "birthYear": 1946,
+    "nationality": "Yugoslavian",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "Europe",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Alice Aycock",
+    "birthYear": 1946,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Judith Baca",
+    "birthYear": 1946,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Leigh Behnke",
+    "birthYear": 1946,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Dara Birnbaum",
+    "birthYear": 1946,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "North America",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Clarice Dreyer",
+    "birthYear": 1946,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Catherine Murphy",
+    "birthYear": 1946,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Judy Pfaff",
+    "birthYear": 1946,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Sandy Skoglund",
+    "birthYear": 1946,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Jeanette Pasin Sloan",
+    "birthYear": 1946,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Susana Solano",
+    "birthYear": 1946,
+    "nationality": "Spanish",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Annette Weintraub",
+    "birthYear": 1946,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "North America",
+    "occupation": "Digital"
+  },
+  {
+    "name": "Laurie Anderson",
+    "birthYear": 1947,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 78,
+    "continent": "North America",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Sarah Charlesworth",
+    "birthYear": 1947,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 78,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Eileen Cowin",
+    "birthYear": 1947,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 78,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Bev Doolittle",
+    "birthYear": 1947,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 78,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Nancy Glazier",
+    "birthYear": 1947,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 78,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Cheryl Laemmle",
+    "birthYear": 1947,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 78,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Louise Lawler",
+    "birthYear": 1947,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 78,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Sherrie Levine",
+    "birthYear": 1947,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 78,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Nancy Mitchnick",
+    "birthYear": 1947,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 78,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Nancy Burson",
+    "birthYear": 1948,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "Digital"
+  },
+  {
+    "name": "Olivia DeBerardinis",
+    "birthYear": 1948,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Sally S. Fine",
+    "birthYear": 1948,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Carmen Lomas Garza",
+    "birthYear": 1948,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Suzanne Gauthier",
+    "birthYear": 1948,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Isa Genzken",
+    "birthYear": 1948,
+    "nationality": "German",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Hung Liu",
+    "birthYear": 1948,
+    "nationality": "Chinese",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "Asia",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Ana Mendieta",
+    "birthYear": 1948,
+    "nationality": "Cuban/American",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Adrian Piper",
+    "birthYear": 1948,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Joyce J. Scott",
+    "birthYear": 1948,
+    "nationality": "African-American",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Mary Scott",
+    "birthYear": 1948,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Judith Shea",
+    "birthYear": 1948,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Hollis Sigler",
+    "birthYear": 1948,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Carroll Taylor-Lindoe",
+    "birthYear": 1948,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Alison Wilding",
+    "birthYear": 1948,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Yuriko Yamaguchi",
+    "birthYear": 1948,
+    "nationality": "Japanese/American",
+    "generation": "Baby Boomers",
+    "age": 77,
+    "continent": "Asia",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Deborah Butterfield",
+    "birthYear": 1949,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 76,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Cima Katz",
+    "birthYear": 1949,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 76,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Karen Kunc",
+    "birthYear": 1949,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 76,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Annie Leibovitz",
+    "birthYear": 1949,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 76,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Laurie Simmons",
+    "birthYear": 1949,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 76,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Alexis Smith",
+    "birthYear": 1949,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 76,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Ann Stautberg",
+    "birthYear": 1949,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 76,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Oviloo Tunnillie",
+    "birthYear": 1949,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 76,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Leslie Wilcox",
+    "birthYear": 1949,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 76,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Leila Daw",
+    "birthYear": 1950,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 75,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Lesley Dill",
+    "birthYear": 1950,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 75,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Zaha Hadid",
+    "birthYear": 1950,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 75,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Jane Hammond",
+    "birthYear": 1950,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 75,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Jenny Holzer",
+    "birthYear": 1950,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 75,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Deborah Murphy",
+    "birthYear": 1950,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 75,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "JoAnn Verburg",
+    "birthYear": 1950,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 75,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Barbara Bloom",
+    "birthYear": 1951,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 74,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Louisa Chase",
+    "birthYear": 1951,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 74,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Sue Coe",
+    "birthYear": 1951,
+    "nationality": "British/American",
+    "generation": "Baby Boomers",
+    "age": 74,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Kim Dingle",
+    "birthYear": 1951,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 74,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Pam Hall",
+    "birthYear": 1951,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 74,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Rocio Maldonado",
+    "birthYear": 1951,
+    "nationality": "Mexican",
+    "generation": "Baby Boomers",
+    "age": 74,
+    "continent": "South America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Sally Mann",
+    "birthYear": 1951,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 74,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Jane Golding Marie",
+    "birthYear": 1951,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 74,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Melissa Miller",
+    "birthYear": 1951,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 74,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Toots Zynsky",
+    "birthYear": 1951,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 74,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Barbara Andrus",
+    "birthYear": 1952,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 73,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Yreina Cervantez",
+    "birthYear": 1952,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 73,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Jane Dickson",
+    "birthYear": 1952,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 73,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Suzanne Duranceau",
+    "birthYear": 1952,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 73,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Mona Hatoum",
+    "birthYear": 1952,
+    "nationality": "Palestinian",
+    "generation": "Baby Boomers",
+    "age": 73,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Deborah Kass",
+    "birthYear": 1952,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 73,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Bettina Rheims",
+    "birthYear": 1952,
+    "nationality": "French",
+    "generation": "Baby Boomers",
+    "age": 73,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Beverly Semmes",
+    "birthYear": 1952,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 73,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Rosemarie Trockel",
+    "birthYear": 1952,
+    "nationality": "German",
+    "generation": "Baby Boomers",
+    "age": 73,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Chakaia Booker",
+    "birthYear": 1953,
+    "nationality": "African-American",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Sophie Calle",
+    "birthYear": 1953,
+    "nationality": "French",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "Europe",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Helen Chadwick",
+    "birthYear": 1953,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Petah Coyne",
+    "birthYear": 1953,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Lynn Donoghue",
+    "birthYear": 1953,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Marlene Dumas",
+    "birthYear": 1953,
+    "nationality": "South African",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "Africa",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Nan Goldin",
+    "birthYear": 1953,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "April Gornik",
+    "birthYear": 1953,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Faye HeavyShield",
+    "birthYear": 1953,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Therese Oulton",
+    "birthYear": 1953,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Jane Ash Poitras",
+    "birthYear": 1953,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Marjetica Potrc",
+    "birthYear": 1953,
+    "nationality": "Slovenian",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Lezley Saar",
+    "birthYear": 1953,
+    "nationality": "African-American",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Carrie Mae Weems",
+    "birthYear": 1953,
+    "nationality": "African-American",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Frances Whitehead",
+    "birthYear": 1953,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 72,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Kendall Buster",
+    "birthYear": 1954,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 71,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Nancy Dwyer",
+    "birthYear": 1954,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 71,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Lubaina Himid",
+    "birthYear": 1954,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 71,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Cindy Sherman",
+    "birthYear": 1954,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 71,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Kiki Smith",
+    "birthYear": 1954,
+    "nationality": "German/American",
+    "generation": "Baby Boomers",
+    "age": 71,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Gilda Snowden",
+    "birthYear": 1954,
+    "nationality": "African-American",
+    "generation": "Baby Boomers",
+    "age": 71,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Margaret Swan",
+    "birthYear": 1954,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 71,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Janice Udell",
+    "birthYear": 1954,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 71,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Sue Williams",
+    "birthYear": 1954,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 71,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Manasie Akpaliapik",
+    "birthYear": 1955,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 70,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Roni Horn",
+    "birthYear": 1955,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 70,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Shirazeh Houshiary",
+    "birthYear": 1955,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 70,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Jana Sterbak",
+    "birthYear": 1955,
+    "nationality": "Czech",
+    "generation": "Baby Boomers",
+    "age": 70,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Dorothy Cross",
+    "birthYear": 1956,
+    "nationality": "Irish",
+    "generation": "Baby Boomers",
+    "age": 69,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Jeanne Duval",
+    "birthYear": 1956,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 69,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Katharina Fritsch",
+    "birthYear": 1956,
+    "nationality": "German",
+    "generation": "Baby Boomers",
+    "age": 69,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Anne Geddes",
+    "birthYear": 1956,
+    "nationality": "Australian",
+    "generation": "Baby Boomers",
+    "age": 69,
+    "continent": "Australia",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Ann Hamilton",
+    "birthYear": 1956,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 69,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Cristina Iglesias",
+    "birthYear": 1956,
+    "nationality": "Spanish",
+    "generation": "Baby Boomers",
+    "age": 69,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Ann Veronica Janssens",
+    "birthYear": 1956,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 69,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Alice Maher",
+    "birthYear": 1956,
+    "nationality": "Irish",
+    "generation": "Baby Boomers",
+    "age": 69,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Cady Noland",
+    "birthYear": 1956,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 69,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Alison Saar",
+    "birthYear": 1956,
+    "nationality": "African-American",
+    "generation": "Baby Boomers",
+    "age": 69,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Dozier Bell",
+    "birthYear": 1957,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 68,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Janet Cardiff",
+    "birthYear": 1957,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 68,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Annette Lemieux",
+    "birthYear": 1957,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 68,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Mary Mead",
+    "birthYear": 1957,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 68,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Shirin Neshat",
+    "birthYear": 1957,
+    "nationality": "Iranian/American",
+    "generation": "Baby Boomers",
+    "age": 68,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Michal Rovner",
+    "birthYear": 1957,
+    "nationality": "Israeli",
+    "generation": "Baby Boomers",
+    "age": 68,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Kitty Wales",
+    "birthYear": 1957,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 68,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Uta Barth",
+    "birthYear": 1958,
+    "nationality": "German",
+    "generation": "Baby Boomers",
+    "age": 67,
+    "continent": "Europe",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Julie Bell",
+    "birthYear": 1958,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 67,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Doris Salcedo",
+    "birthYear": 1958,
+    "nationality": "Colombian",
+    "generation": "Baby Boomers",
+    "age": 67,
+    "continent": "South America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Renee Stout",
+    "birthYear": 1958,
+    "nationality": "African-American",
+    "generation": "Baby Boomers",
+    "age": 67,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Eija-Liisa Ahtila",
+    "birthYear": 1959,
+    "nationality": "Finnish",
+    "generation": "Baby Boomers",
+    "age": 66,
+    "continent": "Europe",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Rineke Dijkstra",
+    "birthYear": 1959,
+    "nationality": "Dutch",
+    "generation": "Baby Boomers",
+    "age": 66,
+    "continent": "Europe",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Renee Green",
+    "birthYear": 1959,
+    "nationality": "African-American",
+    "generation": "Baby Boomers",
+    "age": 66,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Tish Holland",
+    "birthYear": 1959,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 66,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Maya Lin",
+    "birthYear": 1959,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 66,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Pia Stadtbaumer",
+    "birthYear": 1959,
+    "nationality": "German",
+    "generation": "Baby Boomers",
+    "age": 66,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Jessica Stockholder",
+    "birthYear": 1959,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 66,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Marijke van Warmerdam",
+    "birthYear": 1959,
+    "nationality": "Dutch",
+    "generation": "Baby Boomers",
+    "age": 66,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Cathy de Monchaux",
+    "birthYear": 1960,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 65,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Suchan Kinoshita",
+    "birthYear": 1960,
+    "nationality": "Japanese/Dutch",
+    "generation": "Baby Boomers",
+    "age": 65,
+    "continent": "Asia",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Rita McBride",
+    "birthYear": 1960,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 65,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Tracey Moffatt",
+    "birthYear": 1960,
+    "nationality": "Australian",
+    "generation": "Baby Boomers",
+    "age": 65,
+    "continent": "Australia",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Lorna Simpson",
+    "birthYear": 1960,
+    "nationality": "African-American",
+    "generation": "Baby Boomers",
+    "age": 65,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Frida Baranek",
+    "birthYear": 1961,
+    "nationality": "Brazilian",
+    "generation": "Baby Boomers",
+    "age": 64,
+    "continent": "South America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Sylvie Fleury",
+    "birthYear": 1961,
+    "nationality": "Swiss",
+    "generation": "Baby Boomers",
+    "age": 64,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Katharina Grosse",
+    "birthYear": 1961,
+    "nationality": "German",
+    "generation": "Baby Boomers",
+    "age": 64,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Zoe Leonard",
+    "birthYear": 1961,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 64,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Liliana Moro",
+    "birthYear": 1961,
+    "nationality": "Italian",
+    "generation": "Baby Boomers",
+    "age": 64,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Catherine Opie",
+    "birthYear": 1961,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 64,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Judith Schaechter",
+    "birthYear": 1961,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 64,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Sarah Lucas",
+    "birthYear": 1962,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 63,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Pipilotti Rist",
+    "birthYear": 1962,
+    "nationality": "Swiss",
+    "generation": "Baby Boomers",
+    "age": 63,
+    "continent": "Europe",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Ann-Sofi Siden",
+    "birthYear": 1962,
+    "nationality": "Swedish",
+    "generation": "Baby Boomers",
+    "age": 63,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Roxanne Swentzell",
+    "birthYear": 1962,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 63,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Diana Thater",
+    "birthYear": 1962,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 63,
+    "continent": "North America",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Lisa Yuskavage",
+    "birthYear": 1962,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 63,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Ghada Amer",
+    "birthYear": 1963,
+    "nationality": "Egyptian",
+    "generation": "Baby Boomers",
+    "age": 62,
+    "continent": "Africa",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Maria Fernanda Cardoso",
+    "birthYear": 1963,
+    "nationality": "Colombian",
+    "generation": "Baby Boomers",
+    "age": 62,
+    "continent": "South America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Tracey Emin",
+    "birthYear": 1963,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 62,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Fiona Rae",
+    "birthYear": 1963,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 62,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Grazia Toderi",
+    "birthYear": 1963,
+    "nationality": "Italian",
+    "generation": "Baby Boomers",
+    "age": 62,
+    "continent": "Europe",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Barbara Pratt Wangersky",
+    "birthYear": 1963,
+    "nationality": "Canadian",
+    "generation": "Baby Boomers",
+    "age": 62,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Gillian Wearing",
+    "birthYear": 1963,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 62,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Rachel Whiteread",
+    "birthYear": 1963,
+    "nationality": "British",
+    "generation": "Baby Boomers",
+    "age": 62,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Janine Antoni",
+    "birthYear": 1964,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 61,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Berlinde De Bruyckere",
+    "birthYear": 1964,
+    "nationality": "Belgian",
+    "generation": "Baby Boomers",
+    "age": 61,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Sabine Hornig",
+    "birthYear": 1964,
+    "nationality": "German",
+    "generation": "Baby Boomers",
+    "age": 61,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Lee Bul",
+    "birthYear": 1964,
+    "nationality": "Korean",
+    "generation": "Baby Boomers",
+    "age": 61,
+    "continent": "Asia",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Sharon Lockhart",
+    "birthYear": 1964,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 61,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Monica Bonvicini",
+    "birthYear": 1965,
+    "nationality": "Italian",
+    "generation": "Generation X",
+    "age": 60,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Tacita Dean",
+    "birthYear": 1965,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 60,
+    "continent": "Europe",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Andrea Fraser",
+    "birthYear": 1965,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 60,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Ellen Gallagher",
+    "birthYear": 1965,
+    "nationality": "African-American",
+    "generation": "Generation X",
+    "age": 60,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Dominique Gonzalez-Foerster",
+    "birthYear": 1965,
+    "nationality": "French",
+    "generation": "Generation X",
+    "age": 60,
+    "continent": "Europe",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Teresa Hubbard",
+    "birthYear": 1965,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 60,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Elizabeth Peyton",
+    "birthYear": 1965,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 60,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Rebecca Warren",
+    "birthYear": 1965,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 60,
+    "continent": "Europe",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Alison Watt",
+    "birthYear": 1965,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 60,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Bettina Werner",
+    "birthYear": 1965,
+    "nationality": "Italian",
+    "generation": "Generation X",
+    "age": 60,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Andrea Zittel",
+    "birthYear": 1965,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 60,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Fiona Banner",
+    "birthYear": 1966,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 59,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Enrica Borghi",
+    "birthYear": 1966,
+    "nationality": "Italian",
+    "generation": "Generation X",
+    "age": 59,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Angela Bulloch",
+    "birthYear": 1966,
+    "nationality": "Canadian",
+    "generation": "Generation X",
+    "age": 59,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Eva Marisaldi",
+    "birthYear": 1966,
+    "nationality": "Italian",
+    "generation": "Generation X",
+    "age": 59,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Louise McKissick",
+    "birthYear": 1966,
+    "nationality": "Canadian/American",
+    "generation": "Generation X",
+    "age": 59,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Fiona Tan",
+    "birthYear": 1966,
+    "nationality": "Dutch",
+    "generation": "Generation X",
+    "age": 59,
+    "continent": "Europe",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Tomma Abts",
+    "birthYear": 1967,
+    "nationality": "German",
+    "generation": "Generation X",
+    "age": 58,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Alicia Framis",
+    "birthYear": 1967,
+    "nationality": "Spanish",
+    "generation": "Generation X",
+    "age": 58,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Lisa Jevbratt",
+    "birthYear": 1967,
+    "nationality": "Swedish/American",
+    "generation": "Generation X",
+    "age": 58,
+    "continent": "Europe",
+    "occupation": "Digital"
+  },
+  {
+    "name": "Yael Kanarek",
+    "birthYear": 1967,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 58,
+    "continent": "North America",
+    "occupation": "Digital"
+  },
+  {
+    "name": "Abigail Lane",
+    "birthYear": 1967,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 58,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Aleksandra Mir",
+    "birthYear": 1967,
+    "nationality": "Polish",
+    "generation": "Generation X",
+    "age": 58,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Sarah Morris",
+    "birthYear": 1967,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 58,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Rivane Neuenschwander",
+    "birthYear": 1967,
+    "nationality": "Brazilian",
+    "generation": "Generation X",
+    "age": 58,
+    "continent": "South America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Sam Taylor-Wood",
+    "birthYear": 1967,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 58,
+    "continent": "Europe",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Jane Wilson",
+    "birthYear": 1967,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 58,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Louise Wilson",
+    "birthYear": 1967,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 58,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Ceal Floyer",
+    "birthYear": 1968,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 57,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Vanessa Beecroft",
+    "birthYear": 1969,
+    "nationality": "Italian",
+    "generation": "Generation X",
+    "age": 56,
+    "continent": "Europe",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Cecily Brown",
+    "birthYear": 1969,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 56,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Tara Donovan",
+    "birthYear": 1969,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 56,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Mary Flanagan",
+    "birthYear": 1969,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 56,
+    "continent": "North America",
+    "occupation": "Digital"
+  },
+  {
+    "name": "Anna Gaskell",
+    "birthYear": 1969,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 56,
+    "continent": "North America",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Loretta Lux",
+    "birthYear": 1969,
+    "nationality": "German",
+    "generation": "Generation X",
+    "age": 56,
+    "continent": "Europe",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Shahzia Sikander",
+    "birthYear": 1969,
+    "nationality": "Pakistani/American",
+    "generation": "Generation X",
+    "age": 56,
+    "continent": "Asia",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Sarah Sze",
+    "birthYear": 1969,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 56,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Kara Walker",
+    "birthYear": 1969,
+    "nationality": "African-American",
+    "generation": "Generation X",
+    "age": 56,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Yael Bartana",
+    "birthYear": 1970,
+    "nationality": "Israeli",
+    "generation": "Generation X",
+    "age": 55,
+    "continent": "Asia",
+    "occupation": "video, performance & multimedia"
+  },
+  {
+    "name": "Elke Krystufek",
+    "birthYear": 1970,
+    "nationality": "Austrian",
+    "generation": "Generation X",
+    "age": 55,
+    "continent": "Europe",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Julie Mehretu",
+    "birthYear": 1970,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 55,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Laura Owens",
+    "birthYear": 1970,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 55,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Jenny Saville",
+    "birthYear": 1970,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 55,
+    "continent": "Europe",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Beth Stryker",
+    "birthYear": 1970,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 55,
+    "continent": "North America",
+    "occupation": "Digital"
+  },
+  {
+    "name": "Hannah Starkey",
+    "birthYear": 1971,
+    "nationality": "British",
+    "generation": "Generation X",
+    "age": 54,
+    "continent": "Europe",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Candice Breitz",
+    "birthYear": 1972,
+    "nationality": "South African",
+    "generation": "Generation X",
+    "age": 53,
+    "continent": "Africa",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Jennifer Allora",
+    "birthYear": 1974,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 51,
+    "continent": "North America",
+    "occupation": "Multidisciplinary artists"
+  },
+  {
+    "name": "Stephanie Pui-Mun Law",
+    "birthYear": 1976,
+    "nationality": "American",
+    "generation": "Generation X",
+    "age": 49,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Kinuko Y. Craft",
+    "birthYear": 1940,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 85,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Michele Oka Doner",
+    "birthYear": 1945,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 80,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  },
+  {
+    "name": "Adrianne Wortzel",
+    "birthYear": 1941,
+    "nationality": "American",
+    "generation": "Silent Generation",
+    "age": 84,
+    "continent": "North America",
+    "occupation": "Digital"
+  },
+  {
+    "name": "Eva Fuka",
+    "birthYear": 1927,
+    "nationality": "Czech",
+    "generation": "Greatest Generation",
+    "age": 98,
+    "continent": "Europe",
+    "occupation": "Photography"
+  },
+  {
+    "name": "Bunny Harvey",
+    "birthYear": 1946,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 79,
+    "continent": "North America",
+    "occupation": "Painting, drawing, illustration & prints"
+  },
+  {
+    "name": "Marsha Pels",
+    "birthYear": 1950,
+    "nationality": "American",
+    "generation": "Baby Boomers",
+    "age": 75,
+    "continent": "North America",
+    "occupation": "Sculpture, Ceramics & Architecture"
+  }
+]
+
+
+    // Mapping generations (lowercase for comparison) – 4 generations
+    const generationMap = {
+      "greatest generation": 0,
+      "silent generation": 1,
+      "baby boomers": 2,
+      "generation x": 3
+    };
+
+    // Head and spiral settings.
+    const svgSize = 240;
+    const cx = svgSize / 2;
+    const cy = svgSize / 2;
+    const R = 100;
+    const totalAngle = 2.5 * Math.PI;
+    const maxCircleSize = 30;
+    const margin = maxCircleSize;
+    const effectiveR = R - margin;
+    const spacingFactor = 3;
+    const minCircleSize = 8;
+
+    // Occupation rhombus settings.
+    const rowCounts = [2, 1, 2, 1];  // 6 rhombuses
+    const overlayWidth = 250;
+    const baseOverlayHeight = 180;
+    const defaultW = 40, defaultH = 40;
+    const highlightedW = 130, highlightedH = 130;
+    const extraMargin = highlightedH / 2;
+    const effectiveOverlayHeight = baseOverlayHeight + 2 * extraMargin;
+
+    // Mapping occupations (use lowercase for lookup)
+    const occupationMapping = {
+      "painting, drawing, illustration & prints": 0,
+      "multidisciplinary artists": 1,
+      "sculpture, ceramics & architecture": 2,
+      "photography": 3,
+      "video, performance & multimedia": 4,
+      "digital": 5
+    };
+
+    const colors = ["#ECCCC4", "#95BAC5", "#71564B", "#AB6A77", "#3C3D48", "#A1ACC5"];
+
+    // Mapping continents to base colors.
+    const continentBaseColors = {
+      "North America": "#C1D5C1",
+      "Europe": "#CDE0E8",
+      "Asia": "#D5CDC1",
+      "Africa": "#DFC5C5",
+      "Oceania": "#C6C1D5",
+      "South America": "#D6D6D6",
+      "Antarctica": "rgb(220, 220, 220)"
+    };
+
+    const container = document.getElementById("container");
+
+    function renderArtists(artistList) {
+      container.innerHTML = "";
+      artistList.forEach((artist, index) => {
+        const artistDiv = document.createElement("div");
+        artistDiv.className = "artist-container";
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "artist-wrapper";
+
+        // ----- Head Section -----
+        const svgns = "http://www.w3.org/2000/svg";
+        const headSvg = document.createElementNS(svgns, "svg");
+        headSvg.setAttribute("width", svgSize);
+        headSvg.setAttribute("height", svgSize);
+
+        const blurId = "blurFilter-" + index;
+        const gradientId = "shadowGradient-" + index;
+        
+        let defs = document.createElementNS(svgns, "defs");
+        defs.innerHTML += `
+          <filter id="${blurId}">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="8" />
+          </filter>
+        `;
+        const baseColor = continentBaseColors[artist.continent] || "transparent";
+        defs.innerHTML += `
+          <radialGradient id="${gradientId}" cx="50%" cy="50%" r="99%">
+            <stop offset="0%" stop-color="${baseColor}" stop-opacity="0" />
+            <stop offset="100%" stop-color="${baseColor}" stop-opacity="1" />
+          </radialGradient>
+        `;
+        headSvg.insertBefore(defs, headSvg.firstChild);
+
+        const shadowCircle = document.createElementNS(svgns, "circle");
+        shadowCircle.setAttribute("cx", cx);
+        shadowCircle.setAttribute("cy", cy);
+        shadowCircle.setAttribute("r", R + 10);
+        shadowCircle.setAttribute("fill", `url(#${gradientId})`);
+        shadowCircle.setAttribute("filter", `url(#${blurId})`);
+        headSvg.appendChild(shadowCircle);
+
+        const headCircle = document.createElementNS(svgns, "circle");
+        headCircle.setAttribute("cx", cx);
+        headCircle.setAttribute("cy", cy);
+        headCircle.setAttribute("r", R);
+        headCircle.setAttribute("fill", "none");
+        headCircle.setAttribute("stroke", "none");
+        headSvg.appendChild(headCircle);
+
+        // Draw dividing lines for 4 segments
+        for (let i = 0; i < 4; i++) {
+          const angleRad = (-90 + i * 90) * Math.PI / 180;
+          const x = cx + R * Math.cos(angleRad);
+          const y = cy + R * Math.sin(angleRad);
+          const line = document.createElementNS(svgns, "line");
+          line.setAttribute("x1", cx);
+          line.setAttribute("y1", cy);
+          line.setAttribute("x2", x);
+          line.setAttribute("y2", y);
+          line.setAttribute("stroke", "#D1D5DF");
+          headSvg.appendChild(line);
+        }
+
+        // Determine wedge center based on generation.
+        // With 4 segments, the wedge center is:
+        // -90 + (generationIndex * 90) + 45 = -45 + generationIndex * 90
+        const wedgeIndex = generationMap[artist.generation.toLowerCase()];
+        const wedgeCenterDeg = -45 + wedgeIndex * 90;
+        const wedgeCenterRad = wedgeCenterDeg * Math.PI / 180;
+
+        // Draw spiral circles.
+        const age = artist.age;
+        for (let i = 0; i < age; i++) {
+          const t = (age > 1) ? i / (age - 1) : 0;
+          const angle = wedgeCenterRad + totalAngle * t;
+          const rPos = effectiveR * (1 - Math.pow(t, spacingFactor));
+          const x = cx + rPos * Math.cos(angle);
+          const y = cy + rPos * Math.sin(angle);
+          const circleSize = minCircleSize + (maxCircleSize - minCircleSize) * t;
+          const smallCircle = document.createElementNS(svgns, "circle");
+          smallCircle.setAttribute("cx", x);
+          smallCircle.setAttribute("cy", y);
+          smallCircle.setAttribute("r", circleSize);
+          smallCircle.setAttribute("fill", "none");
+          smallCircle.setAttribute("stroke", "#B5BCCE");
+          smallCircle.setAttribute("stroke-width", "1");
+          headSvg.appendChild(smallCircle);
+        }
+        wrapper.appendChild(headSvg);
+
+        // ----- Body Section -----
+        const bodyContainer = document.createElement("div");
+        bodyContainer.className = "body-container";
+        bodyContainer.style.width = "400px";
+
+        const bodyImg = document.createElement("img");
+        bodyImg.src = "body.png";
+        bodyImg.className = "body-img";
+        bodyImg.style.width = "400px";
+        bodyImg.style.height = "auto";
+        bodyContainer.appendChild(bodyImg);
+
+        const overlaySvg = document.createElementNS(svgns, "svg");
+        overlaySvg.setAttribute("width", overlayWidth);
+        overlaySvg.setAttribute("height", effectiveOverlayHeight);
+        overlaySvg.classList.add("overlay-svg");
+        overlaySvg.style.background = "transparent";
+        
+        let flatIndex = 0;
+        const numRows = rowCounts.length;
+        for (let r = 0; r < numRows; r++) {
+          const count = rowCounts[r];
+          const rowHeight = baseOverlayHeight / numRows;
+          const centerY = r * rowHeight + rowHeight / 2 + extraMargin;
+          for (let j = 0; j < count; j++) {
+            const centerX = (j + 1) * (overlayWidth / (count + 1));
+            const occIndex = occupationMapping[artist.occupation.toLowerCase()];
+            let w = defaultW, h = defaultH;
+            if (flatIndex === occIndex) {
+              w = highlightedW;
+              h = highlightedH;
+            }
+            const points = `${centerX},${centerY - h/2} ${centerX + w/2},${centerY} ${centerX},${centerY + h/2} ${centerX - w/2},${centerY}`;
+            const polygon = document.createElementNS(svgns, "polygon");
+            polygon.setAttribute("points", points);
+            polygon.setAttribute("fill", colors[flatIndex % colors.length]);
+            polygon.setAttribute("fill-opacity", "1");
+            polygon.setAttribute("stroke", "none");
+            polygon.setAttribute("stroke-width", "1");
+            overlaySvg.appendChild(polygon);
+            flatIndex++;
+          }
+        }
+        bodyContainer.appendChild(overlaySvg);
+
+        // ----- Name Overlay -----
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "artist-name";
+        nameDiv.textContent = artist.name;
+        bodyContainer.appendChild(nameDiv);
+        wrapper.appendChild(bodyContainer);
+
+        // ----- Tooltip Section -----
+        const tooltipDiv = document.createElement("div");
+        tooltipDiv.className = "artist-tooltip";
+        tooltipDiv.innerHTML = `<strong>${artist.name}</strong><br>
+                                ${artist.occupation} (${artist.nationality}, born ${artist.birthYear})<br>
+                                Age: ${artist.age}, Generation: ${artist.generation}<br>
+                                Continent: ${artist.continent}`;
+        wrapper.appendChild(tooltipDiv);
+
+        wrapper.addEventListener("mousemove", function(e) {
+          const rect = wrapper.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+          tooltipDiv.style.left = (mouseX + 10) + "px";
+          tooltipDiv.style.top = (mouseY + 10) + "px";
+        });
+
+        artistDiv.appendChild(wrapper);
+        container.appendChild(artistDiv);
+      });
+    }
+
+    // Initially render all artists.
+    renderArtists(artists);
+
+    // Filter functionality (case-insensitive match).
+    const occupationFilter = document.getElementById("occupationFilter");
+    occupationFilter.addEventListener("change", function() {
+      const selected = this.value;
+      if(selected === "All") {
+        renderArtists(artists);
+      } else {
+        const filtered = artists.filter(artist => artist.occupation.toLowerCase() === selected.toLowerCase());
+        renderArtists(filtered);
+      }
+    });
+  </script>
+</body>
+</html>
